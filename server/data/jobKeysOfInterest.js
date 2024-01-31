@@ -1,0 +1,18 @@
+export default [
+	"application_deadline",
+	"description",
+	"application_details",
+	"employer",
+	"employment_type",
+	"experience_required",
+	"headline",
+	"id",
+	"logo_url",
+	"must_have",
+	"nice_to_have",
+	"occupation",
+	"occupation_field",
+	"occupation_group",
+	"publication_date",
+	"removed",
+];
