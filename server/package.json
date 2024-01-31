@@ -13,7 +13,7 @@
 		"cv parser"
 	],
 	"scripts": {
-		"server": "nodemon index.js",
+		"server": "node index.js",
 		"build": "npm i",
 		"test": "node test.js"
 	},

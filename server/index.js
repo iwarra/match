@@ -6,7 +6,7 @@ import dictionary from "./api/routes/dictionary.js";
 import upload from "./api/routes/upload.js";
 
 const server = express();
-// createDb middleware
+
 server.use(cors());
 server.use(express.json());
 
