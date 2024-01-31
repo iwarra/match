@@ -9,11 +9,11 @@ import {
 import { queries } from "./src/utils/formatQueries.js";
 import { isObject } from "./src/utils/helperFunctions.js";
 import importantAdKeys from "./data/jobKeysOfInterest.js";
-import { client } from "./src/utils/database.js";
 import tracer from "tracer";
-
 const logger = tracer.colorConsole();
-const database = client.db("job_hunter");
+
+import { getDatabase } from "./src/utils/database.js";
+const database = getDatabase().db("job_hunter");
 const jobAds = database.collection("job_ads");
 
 async function requestAds(endpoint, queries) {
@@ -56,33 +56,42 @@ requestAds("stream", queries()).then((stream) => {
 	stream.pipe(parseAndModify);
 
 	parseAndModify.on("data", async (ad) => {
+		//if (ad.removed) removeAdFromDatabase()
+
 		stream.pause();
 		console.log("Ad id", ad.id);
 
-		const transformed = await embedding(
-			toEmbed(transformNested(propertiesOfInterest(ad))),
-		);
+		if (!ad.removed) {
+			const transformed = await embedding(
+				toEmbed(transformNested(propertiesOfInterest(ad))),
+			);
 
-		jobAds
-			.updateOne(
-				{ _id: ad.id },
-				{
-					$setOnInsert: { _id: ad.id },
-					$set: {
-						original: ad,
-						embedded: Object.values(transformed.data),
+			jobAds
+				.updateOne(
+					{ _id: ad.id },
+					{
+						$setOnInsert: { _id: ad.id },
+						$set: {
+							original: ad,
+							embedded: transformed.tolist().flat(),
+						},
 					},
-				},
-				{ upsert: true },
-			)
-			.then((writeResult) => {
-				logger.trace(writeResult);
-				stream.resume();
-			});
+					{ upsert: true },
+				)
+				.then((writeResult) => {
+					//logger.trace(writeResult);
+					stream.resume();
+				});
+		}
 	});
 });
 
 function propertiesOfInterest(ad) {
+	const description = () => {
+		const desc = ad.description;
+		if (!desc) return "";
+		return desc.text_formatted ?? desc.text;
+	};
 	const requirements = ["must_have", "nice_to_have"].reduce(
 		(requirements, label) => {
 			return {
@@ -94,7 +103,7 @@ function propertiesOfInterest(ad) {
 	);
 
 	return {
-		description: ad.description.text_formatted ?? ad.description.text,
+		description: description(),
 		title: [ad.headline, ad.occupation.label],
 		employer: ad.employer,
 		details: ad.application_details,
