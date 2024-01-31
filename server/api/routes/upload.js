@@ -2,8 +2,8 @@ import express from "express";
 import tracer from "tracer";
 import embedding from "../../src/utils/embedding.js";
 import { toEmbed } from "../../src/state/getResume.js";
-import { client } from "../../src/utils/database.js";
-const database = client.db("job_hunter");
+import { getDatabase } from "../../src/utils/database.js";
+const database = getDatabase().db("job_hunter");
 const resumes = database.collection("resumes");
 const router = express.Router();
 const logger = tracer.colorConsole();
@@ -22,7 +22,7 @@ router.post("/resume", async (req) => {
 		};
 	}, {});
 
-	console.log("edited", editedResume);
+	const transformedResume = await embedding(toEmbed(editedResume))
 
 	resumes
 		.updateOne(
@@ -31,7 +31,7 @@ router.post("/resume", async (req) => {
 				$setOnInsert: { _id: resume.email },
 				$set: {
 					original: resume,
-					embedded: await embedding(toEmbed(editedResume)),
+					embedded: transformedResume.tolist().flat(),
 				},
 			},
 			{ upsert: true },
