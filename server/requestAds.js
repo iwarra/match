@@ -18,6 +18,7 @@ const jobAds = database.collection("job_ads");
 
 async function requestAds(endpoint, queries) {
 	queries = await queries;
+	console.log("Q", queries);
 
 	const url = `${"https://jobstream.api.jobtechdev.se"}/${endpoint}`;
 
@@ -52,7 +53,7 @@ const parseAndModify = JSONStream.parse("*", (ad) => {
 	}, {});
 });
 
-requestAds("stream", queries()).then((stream) => {
+requestAds("stream", queries(/* takes args to change query*/)).then((stream) => {
 	stream.pipe(parseAndModify);
 
 	parseAndModify.on("data", async (ad) => {
@@ -73,6 +74,7 @@ requestAds("stream", queries()).then((stream) => {
 						$setOnInsert: { _id: ad.id },
 						$set: {
 							original: ad,
+							//embedded: toEmbed(transformNested(propertiesOfInterest(ad))),
 							embedded: transformed.tolist().flat(),
 						},
 					},

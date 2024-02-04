@@ -27,6 +27,7 @@ async function findSimilarDocs(query) {
 						_id: 1,
 						original: {
 							headline: 1,
+							description: 1,
 						},
 						score: {
 							$meta: "vectorSearchScore",
@@ -41,7 +42,8 @@ async function findSimilarDocs(query) {
 	return documents;
 }
 
-const result = await findSimilarDocs(
-	await getResume("josipovic.ivona@gmail.com"),
-);
-console.log(result);
+export async function getJobs(resumeId) {
+	const result = await findSimilarDocs(await getResume(resumeId));
+	return result;
+}
+

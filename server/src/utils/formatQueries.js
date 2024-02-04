@@ -4,6 +4,7 @@ import JSONStream from "JSONStream";
 //Alternative fs import
 import * as occupationIds from "../../data/higherEdIds.json " assert { type: "json" };
 import { fileURLToPath } from "url";
+import { dateFromDaysAgo } from "../utils/helperFunctions.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,11 +14,8 @@ export const queries = async function (updateData) {
 		? occupationIds
 		: await getOccupationIds();
 
-	let currentDate = new Date();
-	currentDate.setDate(currentDate.getDate() - 1);
-
 	return {
-		date: [`2024-01-29T13:35:55`],
+		date: dateFromDaysAgo(1),
 		"occupation-concept-id": listOfOccupations,
 		"location-concept-id": ["CifL_Rzy_Mku"],
 	};

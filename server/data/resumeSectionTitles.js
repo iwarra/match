@@ -1,7 +1,7 @@
 let addedTitles = {};
 
 // consider calling it "default"
-let originalTitles = {
+let defaultTitles = {
 	objective: ["objective", "objectives"],
 	summary: ["summary"],
 	technology: ["technology", "technologies"],
@@ -33,24 +33,20 @@ let originalTitles = {
 	interests: ["interests"],
 };
 
-function Titles() {
-	function setAdded(input) {
+const titles = {
+	get default() {
+		return defaultTitles;
+	},
+	get added() {
+		return addedTitles;
+	},
+	setAdded: (input) => {
 		addedTitles = {
 			...addedTitles,
 			...input,
 		};
-	}
-	function added() {
-		return addedTitles;
-	}
+	},
+};
 
-	return {
-		original: originalTitles,
-		added,
-		setAdded,
-	};
-}
 
-export default Titles();
-
-//export { originalTitles, addedTitles };
+export default titles;

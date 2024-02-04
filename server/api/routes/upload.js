@@ -8,7 +8,7 @@ const resumes = database.collection("resumes");
 const router = express.Router();
 const logger = tracer.colorConsole();
 
-router.post("/resume", async (req) => {
+router.post("/resume", async (req, res) => {
 	const url = req.body.value;
 	const { parsedResume } = await import("../../src/utils/parsedResume.js");
 
@@ -22,7 +22,7 @@ router.post("/resume", async (req) => {
 		};
 	}, {});
 
-	const transformedResume = await embedding(toEmbed(editedResume))
+	const transformedResume = await embedding(toEmbed(editedResume));
 
 	resumes
 		.updateOne(
@@ -36,7 +36,10 @@ router.post("/resume", async (req) => {
 			},
 			{ upsert: true },
 		)
-		.then((writeResult) => logger.trace(writeResult));
+		.then((writeResult) => {
+			logger.info(writeResult);
+			res.sendStatus(201);
+		});
 });
 
 export default router;

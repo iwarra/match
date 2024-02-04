@@ -3,9 +3,9 @@
 //import request from "request";
 import titles from "../data/resumeSectionTitles.js";
 
-
 function getTitles() {
-	const obj = { ...titles.original, ...titles.added() };
+	console.log('lala')
+	const obj = { ...titles.default, ...titles.added };
 	return obj;
 }
 
